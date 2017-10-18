@@ -1,0 +1,1045 @@
+[1] Pendahuluan
+      
+      Assembly merupakan bahasa tingkat rendah yang mendekati bahasa mesin. Bahasa mesin
+adalah bahasa asli yang dimengerti oleh prosesor. Selama ini kita mempelajari bahasa 
+pemrograman tingkat tinggi misalnya C, C++, Pascal dll, Sebenarnya komputer (prosesor)
+tidak mengerti bahasa2 tersebut, komputer hanya mengerti 0 dan 1, agar komputer dapat
+mengerti bahasa2 tersebut, diperlukan sebuah alat penerjemah untuk menerjemahkan bahasa 
+tingkat tinggi (C,C++,Pascal) ke bahasa yang dimengerti oleh komputer (bahasa mesin), 
+alat ini biasa kita sebut dengan Compiler. bahasa mesin ini berbentuk rangkaian 
+0 dan 1. Jika kita melihat intruksi bahasa mesin mungkin kita akan pusing melihatnya, 
+contoh intruksi bahasa mesin : 
+
+      1000100111011000     MOV EAX,EBX
+
+      Disebelah kiri merupakan intruksi bahasa mesin. bahasa mesin akan sulit dikenali, dibaca,
+apalagi dihafalkan, "1000100111011000" berarti memindahkan nilai yang ada di EBX ke EAX. 
+Sedangkan disebelah kanan adalah bahasa assembly dari intruksi bahasa mesin disebalah kiri.
+1 intruksi bahasa assembly merepresentasikan 1 intruksi bahasa mesin, bisa dikatakan bahwa
+bahasa assembly merupakan versi readable nya bahasa mesin.
+
+[2] Sistem Bilangan
+
+      Unit terkecil dalam penyimpanan komputer disebut bit. sebuah bit bisa bernilai 0 atau 1.
+beberapa bit membentuk byte. 1 byte = 8 bit. Jarak angka yang dapat disimpan dimasing masing
+ukuran data ini adalah 0 sampai 2^n-1, dimana n adalah jumlah bitnya. Prosesor mendukung ukuran 
+data seperti berikut :
+                        +------------------+---------------------------+
+                        |      SIZE        |          Jarak            |
+       +----------------+------------------+---------------------------+
+       | Byte           | 1byte atau 8bit  |  0 - 255                  |
+       | Word           | 2byte atau 16bit |  0 - 65535                |
+       | Doubleword     | 4byte atau 32bit |  0 - 4294967295           |
+       | Quadword       | 8byte atau 64bit |  0 - 18446744073709551615 |
+       +----------------+------------------+---------------------------+
+        
+
+---[2.1] Bilangan biner
+
+      Bilangan biner merupakan sistem bilangan base 2, yang artinya setiap posisi mempunyai
+nilai 2 pangkat n, dimana, n adalah index dari posisi bilangan itu dari kiri
+
+             +---------------------------------------------------------------+
+     2^n     |  2^7  |  2^6  |  2^5  |  2^4  |  2^3  |  2^2  |  2^1  |  2^0  |
+             +---------------------------------------------------------------+
+             |  128  |   64  |   32  |   16  |   8   |   4   |   2   |   1   |
+             +---------------------------------------------------------------+
+ Bit Number  |   7   |   6   |   5   |   4   |   3   |   2   |   1   |   0   |
+             +---------------------------------------------------------------+
+
+             Example : [1] 11111111 = 1+2+4+8+16+32+64+128 = 255
+                       [2] 11010011 = 1+2+16+64+128        = 211
+                       [3] 00011101 = 1+4+8+16             = 29
+
+       Jika kita ingin mengubah bilangan desimal ke biner, maka yang dilakukan adalah mengambil
+sisa pembagian dari pembagian bil. desimal dengan 2, hasil dari pembagian itu dibagi lagi dengan 2
+dan diambli sisa pembagiannya, sampai hasil pembagian itu sama dengan 0
+
+             Example : [1] 29
+                         -  29 / 2 = 14  --> Sisa 1
+                         -  14 / 2 = 7   --> Sisa 0  
+                         -  7  / 2 = 3   --> Sisa 1
+                         -  3  / 2 = 1   --> Sisa 1
+                         -  1  / 2 = 0   --> Sisa 1
+                                     '----------> 0
+
+                         -> Hasilnya adalah : 011101
+                       [2] 36
+                         -  36 / 2 = 18  --> Sisa 0
+                         -  18 / 2 =  9  --> Sisa 0
+                         -   9 / 2 =  4  --> Sisa 1
+                         -   4 / 2 =  2  --> Sisa 0
+                         -   2 / 2 =  1  --> Sisa 0
+                                      '---------> 1
+                         -> Hasilnya adalah : 100100  
+---[2.2] Bilangan Hexa
+
+      Bilangan hexa merupakan sistem bilangan base 16, sebenarnya bilangan hexa dibuat untuk
+menyederhanakan bilangan biner. Bilangan hexa berjumlah 16, dimulai dari 0-9 dan A-F, dimana A-F
+mewakili 10-15.
+
+          +-------------------------+
+          | Hexa |   Biner   | Dec  |
+          +-------------------------+           Example : [1] 0000 1111     =  0 F
+          |  0   |   0000    |  0   |                         '--' '--'        Y Y
+          |  1   |   0001    |  1   |                           `.   `---------|-'
+          |  2   |   0010    |  2   |                             `------------'
+          |  3   |   0011    |  3   |                     [2] 1101 0100     =  D 4
+          |  4   |   0100    |  4   |                         '--' '--'        Y Y
+          |  5   |   0101    |  5   |                           `.   `---------|-'
+          |  6   |   0110    |  6   |                             `------------'
+          |  7   |   0111    |  7   |                     [3] C 5           =  11000100
+          |  8   |   1000    |  8   |                         Y Y              '--''--'
+          |  9   |   1001    |  9   |                         '-|---------------^   |
+          |  A   |   1010    |  10  |                           '-------------------'
+          |  B   |   1011    |  11  |                   
+          |  C   |   1100    |  12  |                  
+          |  D   |   1101    |  13  |                 
+          |  E   |   1110    |  14  |                
+          |  F   |   1111    |  15  |                        
+          +-------------------------+
+
+       Untuk mengkonversikan Hexa ke desimal, kita harus mengalikan masing-masing angka
+bilangan hexa dengan 16^n dimana n adalah posisi bilangan dihitung dari kiri. Untuk memudahkan
+saya membuat table base 16.
+
+                +-----------------------------------+
+       2^n      |  16^3  |  16^2  |  16^1  |  16^0  |
+                +-----------------------------------+
+                |  4096  |  256   |   16   |    1   |
+                +--------+--------+--------+--------+
+  Bit Number    |    3   |   2    |   1    |    0   |
+                +-----------------------------------+
+       
+                Example : [1] FD         =  15*16 + 13*1  
+                                         =  253
+                          [2] C45        =  12*256 + 4*16 + 5*1 
+                                         =  3141
+Silahkan dikembangkan ya, cara pengkonversiannya :D
+
+---[2.3] Penjumlahan bilangan biner
+         
+         Bilangan biner bisa melakukan operasi aritmatika seperti pengurangan dan penjumlahan.
+Seperti penjumlahan dan pengurangan biasa tetapi yg perlu kalian ketahui bilangan biner hanya
+mempunyai 2 angka saja yaitu 1 dan 0. Contoh sederhana : 
+
+         [1]  00000101 (5)  
+              00000010 (2)
+             ----------+
+              00000111 (7)
+         
+         Didalam pertambahan ini juga terdapat carry, carry terjadi karena hasil penjumlahan yang
+dilakukan melebihi 1, seperti 1+1 = 10 (2 dalam desimal), 1+1+1 = 11 (3 dalam desimal). Contoh
+
+         [2]  00000101 (5)
+              00000001 (1)
+             ----------+                                                                     
+              00000110 (6)    ,-> bil. 10 (2 bit pertama) didapat dari penjumlahan bilangan seblumnya yaitu 1+1, 
+                    `---------'   Karena 1+1 = 10, maka bit 1 ditaruh di bit selanjutnya     1 <--. 
+                                                                                           ..01   | c
+                                                                                           ..01   | a
+                                                                                          ------+ | r
+                                                                                             10   | r
+                                                                                               `--' y
+
+           Untuk melakukan pengurangan bilangan biner, kita harus bisa mengubah bilangan positif
+menjadi negatif. Contoh pengurangan 10 dengan 5, sama saja dengan 10 + (-5), artinya kita harus
+mengubah angka 5 (positif) menjadi -5. Untuk mengubahnya mari kita pelajari tentang Signed dan
+Unsigned number terlebih dahulu.
+
+---[2.4]  Signed dan Unsigned number              
+
+      Seperti yang kita ketahui. jumlah bilangan biner tergantung dari jumlah bit itu sendiri. contoh
+bilangan biner 8bit. dari 00000001, 00000010, 00000011, sampai 11111111. bilangan biner 8bit ini mempunyai
+jumlah 256 atau 2^8 atau 2^n, dimana n adalah jumlah bit itu sendiri. dari 0-255 merupakan bilangan positif.
+Bagaimana jika kita ingin membuat bilangan negatif ?
+
+      Salah satu cara untuk membedakan bilangan negatif dan positif adalah tanda yg berada pada bit MSB (bit paling
+kiri/terakhir) jika bit ini diset (bernilai 1) maka bilangan tersebut adalah bilangan negatif, dan sebaliknya
+jika bernilai 0 maka bilangan itu positif.
+
+      Untuk mengubah bilangan positif ke negatif adalah dengan cara mengubah bit 1 menjadi 0, dan bit 0 
+menjadi 1, setelah itu menambahkannya dengan 1. Contoh
+
+      [1] --> 00000101 (5). Sekarang kita ubah bit 0 menjadi 1 dan sebaliknya. menjadi
+              11111010      Lalu kita tambahkan 1, menjadi
+              11111011      <-- Ini adalah -5 dalam bilangan biner
+
+---[2.5] Pengurangan bilangan biner
+
+      Sekarang kita akan mempelajari bagaimana pengurangan dilakukan pada bilangan biner. Sebenernya ada 2 cara
+pengurangan bilangan biner. Cara pertama yaitu langsung mengurangi kedua bilangan biner, Cara yang kedua yaitu
+mengubah operand menjadi bilangan negatif dan melakukan pertambahan. Kita akan menggunakan kedua cara tersebut
+
+      Example :
+
+      [1] 00001010 (10)   Cara #1 : - Pertama, bit pertama (paling kanan) dikurangi, jadi 0-1, karena operand 
+          00000101  (5)               pertama lebih besar dari operand yg kedua, maka dilakukan peminjaman.
+         --------- -                  yaitu mengambil angka yg berada dibit selanjutnya
+          00000101  (5)             - Sebelumnya bit pertama 0, Setelah diambil menjadi 10. dan bit kedua menjadi 0
+                                      (yg sebelumnya menjadi 1, karena bitnya sudah diambil)
+                                    - Setelah itu dilakukan pengurangan 10 (2) - 1 (1) = 1 
+                                    - Bit kedua dikurangi, karen bit kedua sudah menjadi 0, maka jadinya 0 - 0 = 0
+                                    - Bit ketiga dilakukan dengan cara yg sama seperti bit pertama, yaitu dilakukan 
+                                      peminjaman terhadap bit selanjutnya (bit keempat) dan dilakukan pengurangan
+                                    - Bit keempat (operand pertama) sudah menjadi 0, karena sudah diambil untuk
+                                      bit ketiga tadi, jadinya 0 - 0 = 0
+                                    - Dilanjutkan bit2 selanjutnya 0 - 0 = 0
+
+                          Cara #2 : - Pertama operand kedua (5) diubah menjadi bilangan negatif, seperti pada bagian
+                                      sebelumnya (2.5 tentang signed dan unsigned number). 00000101 diubah, bit 1
+                                      menjadi 0, dan bit 0 menjadi 1 hasilnya 11111010. Setelah itu ditambahkan 1
+                                      menjadi 11111011
+                                    - Selanjutnya 10 ditambahkan dengan -5 (yg sebelmunya sudah diubah ke negatif)
+                                      
+                                      00001010 (10)
+                                      11111011 (-5)
+                                     ---------+
+                                     100000101
+                                    - Hasilnya adalah 100000101 (9 bit), kenapa 9 bit ?, karena terjadi carry pada bit
+                                      terakhir. Kita buang saja bit terakhir itu menjadi 00000101 (5), dan itulah
+                                      hasilnya 
+
+      Silahkan dicoba2 ya kedua cara ini, kalo anda bingung tinggal googling saja tentang "Binary Substraction" :D
+
+[3] Representasi Data
+      
+      Data disimpan dalam komputer dalam bentuk biner. Misalkan saja karakter "A" akan disimpan didalam
+komputer menjadi "01000001", untuk memudahkan kita ubah bilangan biner tsb ke hexa menjadi 0x41 (65
+dalam desimal). Begitu juga karakter "B" diformat menjadi 0x42. Itu sudah diatur dalam format ascii.
+
+      ASCII adalah sistem pemformatan karaketer (huruf, simbol, angka) yang direpresentasikan menjadi
+7bit bilangan biner. Jumlah karakter yang dapat didefinisikan yaitu sebanyak 2^7 atau 128 karakter.
+Silahkan mengacu pada link berikut untuk dapat melihat lebih banyak karakter ascii :
+      
+      [1] http://www.asciitable.com/
+
+      Misalkan kita mempunyai karakter "ABCD", maka dikkomputer akan disimpan sebagai
+      --> 0x41424344
+      Karakter "Saya" jika direpresentasikan oleh komputer menjadi
+      --> 0x53617961
+                    
+                NOTE : Bilangan "0x.." itu menunjukan bilangan Hexa
+
+
+[4] Memory dan Register
+
+---[4.1] Memori
+      Komputer melakukan pemrosesan data. Data dan Intruksi disimpan dalam memory, nantinya data dan intruksi 
+ini bisa diakses oleh software maupun hardware yang membutuhkan data tsb. Memori dibagi menjadi beberapa
+segment sesuai kegunaanya, 
+
+       [1] Code Segment   : Area memori ini digunakan untuk menympan intruksi2 program
+       [2] Data Segment   : Digunakan untuk menyimpan Data seperti variable dan konstanta
+       [3] Stack Segment  : Digunakan untuk menyimpan return address, dan juga variable
+                            dengan konsep tumpukan (LIFO : Last In First Out)
+
+     Bayangkan memori ini seperti sebuah tumpukan lemari yang bisa menyimpan apapun, masing2 lemari hanya
+bisa menyimpan 1 Byte data. Untuk memudahkan operasi lemari ini mempunyai alamat tersendiri, dari alamat
+ke 0, 1, 2 sampai akhir. Lemari pertama ditaruh dipaling atas sedangkan lemari paling akhir disimpan
+dipaling bawah.
+
+      Dalam Sistem 32bit, komputer bisa mengalamatkan memori sebanyak 2^32 alamat, atau sekitar 4,294,967,296
+(4 miliar) alamat. Setiap alamat bisa menyimpan 1Byte data. Jadi dalam sistem 32bit, memori dapat menyimpan
+sebanyak 4GB data.
+
+      Misalkan karakter "Hello world" disimpan pada alamat "0xfff78b30" maka akan disimpan seperti berikut :
+
+      +-------------------+
+      | fff78b30: 0x48  H |   Dialamat awal data (0xfff78b30) berisi 0x48, yaitu nilai ascii dari
+      | fff78b31: 0x65  e |   karakter "H". Selanjutnya dialamat 0xfff78b30+1 berisi 0x65. Sampai
+      | fff78b32: 0x6c  l |   0xfff78b30+0xa berisi 0x64
+      | fff78b33: 0x6c  l |
+      | fff78b34: 0x6f  o |
+      | fff78b35: 0x20    |
+      | fff78b36: 0x77  w |
+      | fff78b37: 0x6f  o |
+      | fff78b38: 0x72  r |
+      | fff78b39: 0x6c  l |
+      | fff78b3a: 0x64  d |
+      +-------------------+
+
+---[4.2] Register
+
+      Sama seperti memori, register juga berfungsi untuk tempat penyimpanan, hanya saja kapasitas register
+ini sangat kecil, tetapi prosesor lebih memilih register dalam melakukan operasi karena lebih cepat
+dari memori fisik. register yang akan dibahas disini adalah General-purpose-register yaitu register yang
+umun digunakan dalam program. Untuk macam2 register dan penjelesannya akan saya jelaskan ditable berikut
+
+      +-------+--------------------------+--------------------------------------+
+      |  EAX  |   Accumulator Register   | EAX biasa digunakan untuk kalkulasi  |
+      +-------+--------------------------+--------------------------------------+
+      |  EBX  |       Base Register      | EBX biasa berisi alamat yang menunjuk|
+      |       |                          | ke suatu lokasi memori (sebagai      |
+      |       |                          | pointer)                             |
+      +-------+--------------------------+--------------------------------------+
+      |  ECX  |    Counter Register      | ECX biasa digunakan sebagai counter  |
+      |       |                          | dalam looping                        |
+      +-------+--------------------------+--------------------------------------+
+      |  EDX  |       Data Register      | EDX biasa digunakan untuk menyimpan  |
+      |       |                          | data seperti hasil dari kalkulasi    |
+      +-------+--------------------------+--------------------------------------+
+      |  EDI  |   Destination Register   | EDI berisi index dari alamat memori  |
+      |       |                          | yang digunakan sebagai destinasi dari|
+      |       |                          | hasil operasi.                       |
+      +-------+--------------------------+--------------------------------------+
+      |  ESI  |      Source Register     | ESI digunakan untuk menunjuk kelokasi|
+      |       |                          | memori yg digunakan sebagai input    |
+      |       |                          | untuk suatu operasi.                 |
+      +-------+--------------------------+--------------------------------------+
+      |  ESP  |       Stack Pointer      | ESP berisi alamat yg menunjuk lokasi |
+      |       |                          | paling atas dalam stack.             |
+      +-------+--------------------------+--------------------------------------+
+      |  EBP  |        Base Ponter       | EBP berisi alamat yg menunjuk lokasi |
+      |       |                          | paling bawah dalam stack             |
+      +-------+--------------------------+--------------------------------------+
+
+      Pada biasanya kita bisa menggunakan semua register tsb, tanpa harus terpaku pada fungsi
+dari masing2 register yang saya sebutkan diatas. Misalnya kita bisa menggunakan register eax
+sebagai pointer. Register diatas mempunyai size 32bit. Didalam register tsb, ada register lain yg mewakili
+bagian isi dari register tsb. contoh register AX mewakili 16bit pertama dalam register EAX, dan AL mewakili
+8bit pertama dari register AX dan EAX. Ukuran register2 tersebut akan dijelaskan ditabel berikut
+
+ 
+                             - [General Purpose Registers] -
+      +------------------------------+          +------------------------------+
+      |             EAX              |          |             EBX              |
+      +------------------------------+          +------------------------------+
+      |              |       AX      |          |              |       BX      |
+      +--------------+---------------+          +--------------+---------------+
+      |              |   AH  |   AL  |          |              |   BH  |   BL  |
+      +--------------+-------+-------+          +--------------+-------+-------+
+     31             15       7       0         31             15       7       0        
+
+      +------------------------------+          +------------------------------+
+      |             ECX              |          |             EDX              |
+      +------------------------------+          +------------------------------+
+      |              |       CX      |          |              |       DX      |
+      +--------------+---------------+          +--------------+---------------+
+      |              |   CH  |   CL  |          |              |   DH  |   DL  |
+      +--------------+-------+-------+          +--------------+-------+-------+
+     31             15       7       0         31             15       7       0
+
+      +------------------------------+          +------------------------------+
+      |             EDI              |          |             ESI              |
+      +------------------------------+          +------------------------------+
+      |              |       DI      |          |              |       SI      |
+      +--------------+---------------+          +--------------+---------------+
+     31             15               0         31             15               0
+
+    +----------------------------------+
+    | Keterangan:                      |
+    |----------------------------------|
+    | EAX,EBX,ECX,EDX,EDI,ESI -> 4byte |
+    | AX,BX,CX,DX,DI,SI       -> 2byte |
+    | AH,AL,BH,BL,CH,CL,DH,DL -> 1byte |
+    +----------------------------------+
+      Selain general-purpose-register yang saya sebutkan diatas, ada juga special-purpose-register.
+Register ini mempunyai fungsi2 khusus diantaranya adalah
+
+      -- EIP (Instruction Pointer)
+         Berisi alamat memori dimana intruksi berada
+ 
+      -- EFLAGS
+         Berisi status flag prosesor
+
+
+      Pembahasan register selanjutnya dibarengi pada bagian "Intruksi Assembly".
+
+
+[5] Intruksi Assembly
+
+      Bayangkan kita sedang memerintahkan kepada prosesor untuk melakukan suatu tugas2 tertentu, 
+prosesor akan melakukan apapun yang kita perintahkan, kita harus tau bahasa apa yg dia mengerti 
+agar kita bisa memerintahkannya, dia hanya mengerti satu bahasa yaitu bahasa biner/mesin. Seperti
+yang kita ketahui bahasa mesin sangat tidak normal dipelajari. Maka dibuatlah bahasa yang lebih
+sederhana yang mewakili intruksi bahasa mesin, yaitu Bahasa Assembly. agar prosesor dapat mengerti
+bahasa assembly, diperlukan sebuah penerjemah, penerjemah ini dinamakan assembler, assembler 
+berfungsi untuk mengubah/menerjemahkan bahasa assembly ke bahasa mesin.
+
+      Bahasa assembly ini terdiri dari intruksi2 sederhana, seperti operasi aritmatika dasar, 
+mengakses memori, conditional jump dll. kumpulan inturksi2 sederhana ini membentuk sebuah
+program2 yang besar dan kompleks. Oh iya, saya lupa, pastikan dilinux anda sudah terinstall
+nasm dan ld. Anda bisa mengeceknya dengan mengetik perintah "nasm -h" dan "ld --help" jika
+perintah tidak ditemukan, silahkan install dengan cara yang tersedia digoogle
+
+   +--------------------------------------------------------------------------+
+   | ramdhan@n0psledbyt3:~$ whatis nasm                                       |
+   | nasm (1)             - the Netwide Assembler, a portable 80x86 assembler |
+   | ramdhan@n0psledbyt3:~$ whatis ld                                         |
+   | ld (1)               - The GNU linker                                    | 
+   +--------------------------------------------------------------------------+
+
+      Nasm digunakan sebagai assembler. Sedangkan ld digunakan sebagai linker yang mengubah 
+object file yang dihasilkan nasm menjadi binary elf executable yang bisa dieksekusi. Dibawah ini
+saya akan menunjukan bagaimana cara membuat program "Hello world" dalam bahasa assembly :D
+
++--------------------------------------------------------------------------------+
+| hello.s |                                                                      |
++--------------------------------------------------------------------------------+
+  1 section .data  ; section .data digunakan untuk menyimpan variable (data)
+  2 msg db "Hello world",0x0a,0x00  ; "Hello world" dilanjutkan 0x0a ini untuk
+  3                                 ; newline dan diakhiri dengan 0x00
+  4 len equ 12     ; Panjang string "Hello world\n" adalah 12
+  5 
+  6 section .text   ; section .text digunakan untuk meyimpan kode assembly kita
+  7 global _start   ; yg nantinya akan dieksekusi.
+  8 _start:         ; intruksi akan dieksekusi dimulai dari lable _start: (seperti main di c)
+  9    
+ 10 mov eax,4       ; eax diisi dengan 4, 
+ 11                 ; 4 merupakan nomor untuk syscall write
+ 12 
+ 13 mov ebx,1       ; 1 untuk standard output
+ 14 
+ 15 mov ecx,msg     ; ecx diisi dengan pointer yang
+ 16                 ; menunjuk ke string "Hello world"
+ 17 mov edx,len     ; edx diisi dengan panjang string 
+ 18                 ; "Hello world" itu sendiri
+ 19 
+ 20 int 0x80        ; meminta layanan ke kernel untuk memanggil
+ 21                 ; syscall  write
+ 22                 ; write(stdout,"Hello world",len)
+ 23 
+ 24 mov eax,1       ; eax diisi dengan 1
+ 25                 ; 1 merupakan nomor untuk syscall exit
+ 26 
+ 27 mov ebx,0       ; parameter yang diisi adalah 0
+ 28 
+ 29 int 0x80        ; Memanggil syscall exit
+ 30                 ; exit(0)
++--------------------------------------------------------------------------------+
+
+    Simpan di file "hello.s" lalu diterminal, pindah ke direktori dimana file hello.s
+itu berada. setelah itu ketik beberapa command dibawah ini
+
++----------------------------------------------------------------------------------+
+| ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ nasm -f elf -o hello.o hello.s   |
+| ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ ld -m elf_i386 -o hello hello.o  |
+| ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ ./hello                          |
+| Hello world                                                                      |
++----------------------------------------------------------------------------------+
+
+    Saya jelaskan sedikit lagi tentang nasm dan ld. nasm mengolah hello.s (kode assembly
+kita) dan menghasilkan sebuah file hello.o. dan ld mengolah file yg dihasilkan nasm tadi
+(hello.o) menjadi sebuah file executable (./hello). Oke kita lanjut pembahasannya
+
+
+    Jika dilihat dari program hello.s diatas kode assembly memiliki perintah-perintah
+yang pendek, tetapi untuk menampilkan hello world saja program diatas butuh beberapa
+langkah untuk melakukannya. Hmm saya lupa bahwa tanda ";" merupakan tanda dimulainya
+komentar, komentar sebagai penjelas dan tidak dieksekusi oleh program. Contoh
+   
+        MOV AL,120    ; Ini komentar, dan tidak dieksekusi oleh program
+
+---[ section .data]
+   
+    Section .data digunakan untuk menyimpan varible/data pada program. aturannya
+    seperti ini:
+
+      section .data
+      nama_variable  db nilai
+ 
+    Contoh :
+ 
+      section .data
+      byte_x  db 50    ; byte_x diisi dengan 50, db berarti byte (ukuran 1byte)
+      word_x  dw 1200  ; word_x diisi dengan 1200, dw berarti word (ukuran 2byte)
+      dword_x dd 75000 ; dword_x diisi dengan 75000, dd berarti double word (ukuran 4byte)
+      
+    Bisa juga untuk mengisi bilangan hexa dan ascii. hexa diawali dengan "0x" sedangkan
+    karakter ascii diantara ' atau ". contoh: 
+
+      section .data
+      var_x   db 0x64  ; var_x berisi 0x64 atau 100 dalam desimal
+      char_a  db 'A'   ; char_a berisi 'A' atau 0x41 dalam hex
+      char_ax db 0x41  ; ini sama saja dengan yg diatas (char_a) karena nilai 'A' 
+                       ; dalam ascii adalah 0x41 atau 65 dalam desimal
+
+    Bisa juga digunakan seperti array, contoh:
+      
+      section .data
+      ganjil db 1,3,5,7,9,11,13    ; Setiap elemen dipisahkan dengan koma
+      array_hex db 0x56,0x02,0x45,0x12
+      nama db 'Budi'               ; Untuk array dari char (string) tidak perlu dipisahkan
+                                   ; koma
+
+    Untuk mendefinisikan konstanta menggunakan "equ", contoh
+
+    const_x   equ  120  ; nilai const_x adalah 120, dan nilainya tidak bisa diubah
+ 
+---[ Instruksi MOV ]
+
+     Intruksi mov digunakan untuk memmindahkan data, ke suatu register atau alamat memori, dengan
+operand berupa alamat memori, register, atau konstanta. struktrunya seperti ini
+
+       MOV DST,SRC
+     
+     DST merupakan destination (dimana data akan disimpan) dan SRC merupakan source (tempat dimana
+data yang ingin dipindahakan ke DST). Contoh lain
+
+
+       [1] MOV EAX,5          ; mengisi 5 ke eax, setelah intruksi ini eax berisi 5   
+       [2] MOV EBX,EAX        ; isi dari register eax, dicopy ke ebx. Sekarang ebx
+                              ; dan eax berisi 5.
+
+       
+       [3] MOV ECX,0x10203040 ;
+       [4] MOV BL,CL          ; karena CL mewakili 1byte pertama dari ECX, maka CL berisi 40
+                              ; sekarang BL berisi 40
+
+            ;           MOV ECX,0x10203040 
+            ;      +------+------+------+------+   
+            ; Byte | ke-4 | ke-3 | ke-2 | ke-1 |   CX berisi 0x3040
+            ;      |------+------+------+------+
+            ; Isi  | 0x10 | 0x20 | 0x30 | 0x40 |   CH berisi 0x30, CL berisi 0x40
+            ;      +------+------+------+------+
+            ;
+                               ; Karena itulah BL berisi 0x40
+
+
+       MOV juga bisa membaca dan menulis data yg berada dalam memori. Pada bagian sebelumnya
+kita telah mempelajari tentang menyimpan variabel di section .data. Untuk mengambil data yang
+berada dialamat memori, kita akan menggunakan. 
+
+            
+             MOV reg,[mem]
+
+             * Dimana reg adalah register, seperti eax,ebx, dll
+             * mem adalah alamat yang menunujuk ke sebuah data
+             * hasilnya, reg berisi data yang berada di alamat memori mem
+       
+       Kalau dibahasa C, seperti: reg = *mem;
+       Contoh,
+
+
+       section .data
+       x dw 0x64 
+       y db 100,120,140 ; y berisi array
+       z db "Halo"      ; z berisi array
+
+       section .text
+       global _start
+       _start:
+
+       mov ax,[x]     ; artinya kita memindahkan data yang berada di alamat memori x ke eax.
+                      ; nantinya ax akan berisi 100
+
+       mov bl,[y]     ; bl akan berisi 100,
+       mov dl,[y+1]   ; bl akan berisi 120, karena y+1 akan menunjuk ke elemen ke-2 dari y
+                      ; yaitu 120
+       mov cl,[z+2]   ; cl berisi [z+2] (menunjuk elemen ke-2) yaitu karakter 'l'
+                      ; karaktel 'l' dalam ascii bernilai 108. berarti cl berisi 108
+
+       Kenapa harus menggunakan tanda [ ] untuk mengambil data didalam variable x, karena jika
+kita hanya menggunakan mov eax,x itu tidak mengambil data di x. Sebenarnya x adalah alamat memori 
+yang menunjuk ke 0x64. bisa juga dengan cara seperti ini
+        
+        >  mov eax,x
+        >  mov bx,[eax]
+
+ 
+       Kembali ke kode, Pertama x mempunyai nilai 0x64 dengan ukuran word (2 byte) dan y berisi 
+array byte. selanjutnya dibagian kode, "mov ax,[x]" register ax dipilih karena sesuai dengan 
+ukuran variabel x, yaitu ukuran 2byte, bisa juga dengan register lain dengan ukuran 2byte, 
+seperti bx,cx,dx dll. Selanjutanya "mov bl,[y]" nilai yang berada dialamat y dikopi ke bl, 
+bl dipilih karena sizenya sesuai dengan variable y yaitu byte. Selanjutanya mov dl,[y+1], 
+alamat memori y+1 menunjuk ke elemen ke-2 dari y yang berisi nilai 120.
+
+
+
+        Contoh kode menukar isi dari kedua variable :
+
+
+        section .data
+        kotak_1  dw  3000
+        kotak_2  dw  2500
+
+        section .text
+        global _start
+        _start:
+
+        mov ax,[kotak_1]   ; nilai dari kotak_1 disimpan ke ax
+        mov bx,[kotak_2]   ; nilai dari kotak_2 disimpan ke bx
+        mov [kotak_1],bx   ; nilai dari bx (yg tadi sudah diisi dari nilai kotak_2)
+                           ; disimpan ke kotak_1 
+        mov [kotak_2],ax   ; nilai dari ax (yg tadi sudah diisi dari nilai kotak_1)
+                           ; disimpan ke kotak_2
+
+        ; Diakhir, kotak_1 akan bernilai 2500 dan kotak_2 akan bernilai 3000
+
+
+    Kita juga bisa menulis data ke alamat memori yg disimpan di register dengan menggunakan
+tanda []
+
+
+        angka db  10,20,30,40
+
+        mov eax,angka
+        mov cl, [eax]      ; mengambil nilai pada index 0
+        mov dl, [eax+1]    ; mengambil nilai pada index 1
+        add eax,2          ; eax = eax + 2
+        mov bl, [eax]      ; mengambil index ke-2
+        mov bl, [eax+1]    ; mengambil index ke-3
+
+
+    Nomor index juga bisa kita simpan di register, contoh:
+
+        angka dw 1000,2000,3000,4000
+
+    
+        
+
+
+
+---[ Intruksi ADD dan SUB ]
+
+     Dibagian sebelumnya kita telah mempelajari intruksi MOV yang digunakan untuk memindahkan/mencopy
+data antar register, antar register dengan memori, konstanta ke register. Kali kita akan mempelajari 
+intruksi ADD dan SUB. Sedikit penjelasan, intruksi add digunakan untuk menjumlahkan bilangan, sedangkan
+sub digunakan untuk mengurangi bilangan. 
+
+Contoh intruksi ADD :
+
+      Contoh 1:
+         mov  eax,2         ; eax diisi dengan 2
+         add  eax,2         ; eax ditambah 2 dan hasilnya disimpan ke eax, sekarang eax berisi 4
+
+      Contoh 2:
+         mov eax,4          ; eax diisi dengan 4
+         mov ebx,2          ; ebx diisi dengan 2
+         add ebx,eax        ; ebx = ebx + eax, ebx = 4 + 2, ebx berisi 6
+
+
+    Intruksi ADD juga bisa langsung menambahkan ke lokasi memori, Seperti:
+
+         section .data
+         x db 6
+
+         section .text
+         global _start
+         _start:
+         add byte [x],6      ; *x = *x + 6
+         mov al,[x]          ; al = *x
+
+     Tapi kita harus menambahkan ukuran pada intruksi add, contoh diatas
+     kita menambahkan "byte" sebagai ukuran dari variable x. contoh
+     lain jika x berukuran dword (32bit)
+
+         section .data
+         x dd 10
+
+         section .text
+         global _start
+         _start:
+         add dword [x],10
+         mov eax,[x]
+
+
+Contoh intruksi SUB :
+
+       Contoh 1:
+          mov ebx,10        ; ebx diisi dengan 10
+          sub ebx,5         ; ebx = ebx - 5, hasilnya ebx berisi 5
+
+       Contoh 2:
+          mov edx,16        ; edx diisi dengan 16 
+          mov ecx,6         ; ecx diisi dengan 6
+          sub edx,ecx       ; edx = edx - ecx, hasilnya edx = 10
+
+
+       Contoh 3:
+          section .data
+          x dw 12
+
+          section .text
+          global _start
+          _start:
+          sub word [x],6    ; *x = *x - 6
+          mov ax,[x]        ; al = *x  
+        
+
+---[ Assembly Print Output ]
+
+    Kali ini kita akan mencetak output dengan bahasa assembly. Seperti fungsi printf di C
+    Sebelumnya juga saya sudah memberikan kode untuk menampilkan hello world dalam bahasa
+    assembly. Sebelum itu mari kita bahas satu persatu dulu, yaitu saya jelaskan tentang
+    syscall, interupt dan fungsi2 syscall.
+
+------[ Syscall
+
+        Syscall (System Call) adalah sebuah fungsi atau API yang disediakan oleh sistem 
+    operasi, agar sebuah program yang berjalan di sistem operasi bisa meminta layanan 
+    ke sistem operasi tersebut. Kenapa harus meminta layanan ?, karena program biasa
+    tidak punya hak untuk melakukan operasi itu, hanyak sistem operasi lah yg berhak
+    ibaratnya harus minta ijin dulu ke sistem operasi dalam hal ini adalah kernel
+    dari sistem operasi tersebut.
+
+         +----------+
+         |  KERNEL  | Ring 0
+         +----------+
+         |  SysCall | Ring 1
+         +----------+
+         | UserMode | Ring 2 ( Program kita berada disini. )
+         +----------+
+
+        Nah, bisa dilihat diatas. program kita berada diuser mode Ring 2, untuk melakukan
+    operasi, misalnya membuat file, sebenarnya operasi itu hanya bisa dilakukan di level
+    kernel, program yang berada di usermode tidak punya hak untuk melakukan itu.
+
+        Syscall berfungsi sebagai jembatan antara UserMode dan KernelMode, ketika program
+    yang berada di usermode ingin membuat file misalnya, kita harus meminta kernel untuk
+    melakukannya, kita memintanya melalui syscall. Setiap syscall diwakili oleh nomor2 syscall
+    Contoh syscall exit diwakili angka 1, syscall write diwakili angka 3, syscall open angka
+    5. Ini bisa diliat pada file "/usr/include/x86_64-linux-gnu/asm/unistd_32.h"
+
+      +---------------------------------------------------------------------------+
+      | ramdhan@n0psledbyt3:~$ more /usr/include/x86_64-linux-gnu/asm/unistd_32.h |
+      | #ifndef _ASM_X86_UNISTD_32_H                                              |
+      | #define _ASM_X86_UNISTD_32_H 1                                            |
+      |                                                                           |
+      | #define __NR_restart_syscall 0                                            |
+      | #define __NR_exit 1                                                       |
+      | #define __NR_fork 2                                                       |
+      | #define __NR_read 3                                                       |
+      | #define __NR_write 4                                                      |
+      | #define __NR_open 5                                                       |
+      | #define __NR_close 6                                                      |
+      | #define __NR_waitpid 7                                                    |
+      | #define __NR_creat 8                                                      |
+      | #define __NR_link 9                                                       |
+      | #define __NR_unlink 10                                                    |
+      | #define __NR_execve 11                                                    |
+      | #define __NR_chdir 12                                                     |
+      | #define __NR_time 13                                                      |
+      | #define __NR_mknod 14                                                     |
+      | #define __NR_chmod 15                                                     |
+      | #define __NR_lchown 16                                                    |
+      | #define __NR_break 17                                                     |
+      | #define __NR_oldstat 18                                                   |
+      | #define __NR_lseek 19                                                     |
+      | #define __NR_getpid 20                                                    |
+      | --More--                                                                  |
+      +---------------------------------------------------------------------------+
+
+------[ Memanggil SysCall ]
+
+        Untuk memanggil syscall menggunakan intruksi asm "int 0x80", dengan paramter
+    dengan parameter:
+            
+            - EAX  : nomor syscall
+            - EBX  : paramter 1
+            - ECX  : paramter 2
+            - EDX  : paramter 3
+
+        Kita akan memprint output ke terminal menggunakan syscall. syscall yang
+    digunakan adalah syscall write, syscall write mempunyai nomor syscall 4, angka
+    4 ini akan kita isikan ke eax. Untuk mengetahui parameter apa saja yang harus
+    diisikan kita buka manual dengan perintah man di terminal.
+
+        > man 2 nama_syscall
+        > man 2 write
+        > man 2 read
+
+        Karena kita menggunakan syscall write, langsung ketik perintah "man 2 write"
+    dan akan keluar jendela Linux Manual. Keterangan dari manulanya seperti ini.
+
+       ------------------------------------------------------------
+        NAME
+            write - write to a file descriptor
+
+        SYNOPSIS
+            #include <unistd.h>
+
+            ssize_t write(int fd, const void *buf, size_t count);
+       ------------------------------------------------------------
+
+        Bisa kita lihat bagian ini:
+            ssize_t write(int fd, const void *buf, size_t count);
+
+        Parameter 1 yaitu fd (file descriptor), karena kita akan menulis ke stdout, 
+        isi paramter 1 ini dengan nilai integer 1, karena kita tahu standar file 
+        descriptor ada 3, yaitu stdin (bernilai 0), stdout (bernilai 1), stderr 
+        (bernilai 2). Parameter 1 ini akan kita simpan di ebx
+
+        Parameter 2 yaitu alamat dari data yang ingin kita tulis. Parameter kedua
+        ini akan kita simpan di ecx.
+       
+        Parameter 3 adalah panjang data itu sendiri. Parameter ketiga ini akan kita
+        simpan di edx.
+
+            Hmm, saya baru ingat, selain syscall write yang harus digunakan, kita
+        juga harus menggunakan syscall exit, syscall exit digunakan untuk mengakhiri
+        program.
+
+            syscall exit mempunyai nomor syscall 1, jika dilihat di "man 2 exit", syscall
+        exit membutuhkan 1 parameter.
+
+        --------------------------------------------------
+        NAME
+            _exit, _Exit - terminate the calling process
+
+        SYNOPSIS
+            #include <unistd.h>
+
+            void _exit(int status);
+        --------------------------------------------------
+
+            Nantinya status akan diisi oleh 0, seperti exit(0) di C. Parameter 1 ini
+        akan kita simpan di ebx.
+
+        Baik, kita akan buat kode assemblynya, kodenya seperti ini
+
+       |  1  section .data
+       |  2  msg db 'Hello world',0x0a,0x00  ; "Hello world" dilanjutkan 0x0a ini untuk
+       |  3                                  ; newline dan diakhiri dengan 0x00
+       |  4  len equ 12     ; Panjang string "Hello world\n" adalah 12
+       |  5  
+       |  6  section .text
+       |  7  global _start 
+       |  8  _start:
+       |  9  
+       | 10  mov eax,4       ; eax diisi dengan 4, 
+       | 11                  ; 4 merupakan nomor untuk syscall write
+       | 12  
+       | 13  mov ebx,1       ; parameter pertama disimpan di ebx
+       | 14                  ; 1 untuk standard output
+       | 15  
+       | 16  mov ecx,msg     ; paramter kedua disimpan di ecx
+       | 17                  ; ecx diisi dengan pointer yang
+       | 18                  ; menunjuk ke string "Hello world"
+       | 19  mov edx,len     ; paramter ketiga disimpan di edx
+       | 20                  ; edx diisi dengan panjang string 
+       | 21                  ; "Hello world" itu sendiri
+       | 22  
+       | 23  int 0x80        ; meminta layanan ke kernel untuk memanggil
+       | 24                  ; syscall  write
+       | 25                  ; write(stdout,"Hello world",len)
+       | 26  
+       | 27  mov eax,1       ; eax diisi dengan 1
+       | 28                  ; 1 merupakan nomor untuk syscall exit
+       | 29  
+       | 30  mov ebx,0       ; paramter pertama diisi di ebx
+       | 31                  ; parameter yang diisi adalah 0
+       | 32  
+       | 33  int 0x80        ; Memanggil syscall exit
+       | 34                  ; exit(0)
+       +-----------------------------------------------------------------------------------
+
+
+        Untuk yang males ngetik ulang dan ingin copas, silahkan copas dibawah ini :v
+
+       +--------------------------------------------------------------+
+        ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ cat hello2.s
+        section .data
+        msg db 'Hello world',0x0a,0x00 
+        len equ 12
+
+        section .text
+        global _start 
+        _start:
+    
+        mov eax,4 
+        mov ebx,1
+        mov ecx,msg
+        mov edx,len
+        int 0x80    ; write(stdout,"Hello world\n",12)
+
+        mov eax,1
+        mov ebx,0
+        int 0x80    ; exit(0)
+       +--------------------------------------------------------------+
+
+
+        Saya menyimpannya dengan file hello2.s silahkan atur sendiri nama file pada saat 
+        mengompilenya. Sekarang kita compile dengan nasm, dan linking dengan ld. dan
+        kita coba dengan meneksekusinya.
+
+       +-----------------------------------------------------------------------------------+
+       | ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ nasm -f elf -o hello2.o hello2.s  |
+       | ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ ld -m elf_i386 -o hello2 hello2.o |
+       | ramdhan@n0psledbyt3:~/Desktop/Belajar Assembly$ ./hello2                          |
+       | Hello world                                                                       |
+       +-----------------------------------------------------------------------------------+
+
+
+
+---[ Stack dan Intruksi push, pop ]
+
+    Stack, adalah ruang di suatu lokasi memori yang digunakan untuk menyimpan data2. Stack
+bersifat LIFO ( Last In First Out ) yakni, data yang terakhir masuk akan keluar pertama jika
+kita mengambil sebuah data didalam stack. Bayangkan stack itu seperti tumpukan piring, piring
+yang kita taruh paling atas, akan terambil pertama. Hanya 2 operasi yang kita lakukan untuk
+mengubah stack, yaitu intruksi PUSH dan POP.
+
+    Intruksi PUSH digunakan untuk menaruh data kedalam sebuah stack, sedangkan intruksi POP
+untuk mengambil data didalam sebuah stack. lokasi stack ditentukan oleh register ESP (Stack 
+Pointer) dan EBP (Base Pointer).
+
+    ESP berisi alamat yang menunjuk data paling atas dalam sebuah stack, sedangkan EBP berisi
+alamat yang menunjuk data paling bawah dalam sebuah stack
+
+            +-----------------+
+            |    Top Stack    |  <-- ESP
+            +-----------------+
+            |      .....      |
+            :      RUANG      :
+            :      STACK      :
+            |      '''''      |
+            +-----------------+
+            |  Bottom Stack   |  <-- EBP
+            +-----------------+
+
+        Contoh operasi assembly,
+        Contoh 1 : 
+                    push 13   ; mengisi stack dengan 13
+                    pop eax   ; menambil nilai stack, kini eax berisi 13
+
+            Sebelum Intruksi Push
+            +-------------------+
+            |        ...        |  <-- ESP
+            |                   |  <-- EBP
+            +-------------------+        
+
+            Sesudah Intruksi "push 13", ESP naik keatas
+            +-------------------+
+            |        13         |  <-- ESP
+            |        ...        |
+            |                   |  <-- EBP
+            +-------------------+
+            
+            Sesudah intruksi "pop eax", ESP turun kebawah
+            dan nilai 13 akan disimpan di eax
+            +-------------------+
+            |        ...        |  <-- ESP
+            |                   |  <-- EBP
+            +-------------------+
+
+    ESP selalu tumbuh setiap ada operasi push, dan turun setelah intruksi pop
+
+        Contoh 2 :
+                    push 1    ; mengisi stack dengan 1
+                    push 2    ; mengisi stack dengan 2
+                    pop eax   ; mengambil nilai stack, eax bernilai 2
+                    pop ebx   ; mengambil nilai stack, ebx bernilai 1
+
+        Gambaran:
+
+            Sebelum Intruksi Push
+            +-------------------+
+            |        ...        |  <-- ESP
+            |                   |  <-- EBP
+            +-------------------+
+
+            Sesudah Intruksi Push
+ Lower            "push 1"
+ Address    +-------------------+
+            |         1         |  <-- ESP
+    A       :        ...        :
+    |       |                   |  <-- EBP
+    |       +-------------------+
+    |
+    V       Sesudah Intruksi Push
+                   "push 2"
+ Higher     +-------------------+
+ Address    |         2         |  <-- ESP
+            |         1         |
+            :        ...        :
+            |                   |  <-- EBP
+            +-------------------+
+
+            Sesudah Intruksi POP
+                   "pop eax"        EAX = 2
+            +-------------------+
+            |         1         |  <-- ESP
+            :        ...        :
+            |                   |  <-- EBP
+            +-------------------+
+
+            Sesudah Intruksi POP
+                    "pop ebx"       EBX = 1
+            +-------------------+
+            |        ...        |  <-- ESP
+            |                   |  <-- EBP
+            +-------------------+
+
+
+    ESP berisi alamat yang menunjuk ke puncak stack. Stack tumbuh kealamat yang lebih kecil,
+maksudnya, Contoh ketika ada intruksi push.
+
+            PUSH 10
+
+    Pada saat intruksi push, nilai esp dikurang 4, dan 10 dimasukkan ke alamat memori yg 
+ditunjuk oleh ESP. PUSH diatas sama dengan intruksi :
+
+            SUB ESP,4
+            MOV [ESP],10
+
+    Intruksi POP EAX sama dengan intruksi :
+
+            MOV EAX,[ESP]
+            ADD ESP,4
+
+    Contoh gambaran, misal ESP berisi alamat 0x1000 dan EBP berisi alamat 0x1200
+
+
+          Address      DATA
+         +-------+-------------+   
+         |0x1000 |   0x434241  |   <-- ESP = 0x1000
+         |0x1004 |     0x10    |
+         |0x1008 |    0xf00    |
+         |0x100C |    0x1010   |
+         | ....  |     ....    |
+         |0x1FFC |  0xdeadbeef |    
+         |0x2000 |  0x41424344 |   <-- EBP = 0x2000
+         +-------+-------------+ 
+
+
+         Ketik ada intruksi PUSH 0x1337 misalnya, Setelah dieksekusi
+konten stack akan menjadi seperti ini : 
+
+          Address      DATA
+         +-------+-------------+  
+         |0x9fc  |    0x1337   |   <-- ESP = 0x9fc (nilai esp dikurangi 4,
+         |0x1000 |   0x434241  |                    yg sebelumnya 0x1000)
+         |0x1004 |     0x10    |
+         |0x1008 |    0xf00    |
+         |0x100C |    0x1010   |
+         | ....  |     ....    |
+         |0x1FFC |  0xdeadbeef |
+         |0x2000 |  0x41424344 |   <-- EBP = 0x2000
+         +-------+-------------+
+
+        Setelah ada intruksi POP EDX, stack berubah dan kembali pada posisi awal,
+dan EDX bernilai 0x1337
+        
+         Address      DATA
+         +-------+-------------+  
+         |0x1000 |   0x434241  |   <-- ESP = 0x1000 (nilai esp ditambah 4,
+         |0x1004 |     0x10    |                     yg sebelumnya 0x9fc)
+         |0x1008 |    0xf00    |
+         |0x100C |    0x1010   |
+         | ....  |     ....    |
+         |0x1FFC |  0xdeadbeef |
+         |0x2000 |  0x41424344 |   <-- EBP = 0x2000
+         +---------------------+
+
+        Untuk 32bit ( Assembly 32bit yang kita pelajari ) Setiap blok/baris data pada stack, 
+akan ditampilkan 4byte (32bit) pada umumnya. Jika tadi kita mempush data 0x1337, PUSH 0x1337,
+pada stack akan disimpan sebagai 0x00001337 (menjadi 4byte)
+        
+
+---[ Intruksi Division dan Multiplication ]
+
+        TODO
+
+---[ Intruksi CALL dan RET ]
+
+        TODO
+
+---[ Unconditional dan Conditional JUMP ]
+
+        TODO
+
+---[ Contoh Program2 Bahasa Assembly ]
+
+        TODO
